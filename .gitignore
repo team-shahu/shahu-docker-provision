@@ -1,0 +1,4 @@
+*.env
+
+/misskey/data/
+/misskey-backup/config/*.tar

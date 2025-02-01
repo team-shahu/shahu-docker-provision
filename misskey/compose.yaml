@@ -1,0 +1,66 @@
+services:
+  app:
+    image: ghcr.io/team-shahu/misskey:latest
+    restart: always
+    links:
+      - db
+      - keydb
+    depends_on:
+      db:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    networks:
+      - internal_network
+    volumes:
+      - ./.config:/misskey/.config:ro
+
+  keydb:
+    restart: always
+    image: eqalpha/keydb:alpine
+    networks:
+      - internal_network
+    volumes:
+      - ./data/keydb:/data
+    healthcheck:
+      test: "redis-cli ping"
+      interval: 5s
+      retries: 20
+
+  db:
+    restart: always
+    image: groonga/pgroonga:latest-debian-16
+    ports:
+      - '5430:5432'
+    networks:
+      internal_network:
+      misskey-postgres:
+          ipv4_address: 10.0.0.2
+    env_file:
+      - .config/.env
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
+      interval: 5s
+      retries: 20
+
+  tunnel:
+    restart: always
+    image: cloudflare/cloudflared
+    command: tunnel --no-autoupdate run
+    env_file:
+      - .config/.env
+    networks:
+      - internal_network
+
+networks:
+  internal_network:
+  misskey-postgres:
+    external: true
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/27

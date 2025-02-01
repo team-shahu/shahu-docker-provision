@@ -1,0 +1,3 @@
+[submodule "misskey-backup"]
+	path = misskey-backup
+	url = https://github.com/team-shahu/misskey-backup
