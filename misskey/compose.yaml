@@ -1,4 +1,20 @@
 services:
+  proxy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - app
+    profiles:
+      - proxy
+    volumes:
+      - ./.config/Caddyfile:/etc/caddy/Caddyfile
+      - ./data/caddy/data:/data
+      - ./data/caddy/config:/config
+    networks:
+      - internal_network
+
   app:
     image: ghcr.io/team-shahu/misskey:latest
     restart: always
@@ -51,6 +67,8 @@ services:
     restart: always
     image: cloudflare/cloudflared
     command: tunnel --no-autoupdate run
+    profiles:
+      - tunnel
     env_file:
       - .config/.env
     networks:
