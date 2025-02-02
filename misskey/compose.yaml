@@ -17,7 +17,6 @@ services:
     image: ghcr.io/team-shahu/misskey:latest
     restart: always
     links:
-      - proxy
       - db
       - keydb
     depends_on:
