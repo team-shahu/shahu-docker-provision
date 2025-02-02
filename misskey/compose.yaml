@@ -4,8 +4,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    depends_on:
-      - app
     profiles:
       - proxy
     volumes:
@@ -19,6 +17,7 @@ services:
     image: ghcr.io/team-shahu/misskey:latest
     restart: always
     links:
+      - proxy
       - db
       - keydb
     depends_on:
