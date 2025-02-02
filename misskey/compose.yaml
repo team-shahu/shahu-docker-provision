@@ -29,7 +29,7 @@ services:
     networks:
       - internal_network
     volumes:
-      - ./.config:/misskey/.config:ro
+      - ./.config/default.yml:/misskey/.config/default.yml:ro
 
   keydb:
     restart: always
