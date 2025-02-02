@@ -16,6 +16,8 @@ services:
   app:
     image: ghcr.io/team-shahu/misskey:latest
     restart: always
+    environment:
+      COREPACK_INTEGRITY_KEYS: 0
     links:
       - db
       - keydb
