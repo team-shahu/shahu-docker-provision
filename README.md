@@ -23,7 +23,8 @@ https://github.com/team-shahu/shahu-docker-provision.git
 ```
    
 ### Edit configs (Misskey)
-Enter any value for `POSTGRES_PASSWORD` and `POSTGRES_USER` (this must be the same value in `default.yml` described below), and for `TUNNEL_TOKEN`, which can be obtained from [here instructions]([https://hogehoger](https://qiita.com/mai_llj/items/5485d2a90fe28b76b5aa#cloudflare-argo-tunnel%E3%81%AE%E8%A8%AD%E5%AE%9A)) Enter the Cloudflare Tunnel token.  
+Enter any value for `POSTGRES_PASSWORD` and `POSTGRES_USER` (must be the same value as in `default.yml` described below).  
+Also, if you are using Cloudflare Tunnel, for `TUNNEL_TOKEN` enter [instructions here](https://qiita.com/mai_llj/items/5485d2a90fe28b76b5aa#cloudflare-argo-tunnel%E3%81%AE%E8%A8%AD%E5%AE%9A) Enter the Cloudflare Tunnel token.  
 ```
 cp ./shahu-docker-provision/misskey/.config/.env.sample ./shahu-docker-provision/misskey/.config/.env
 vim ./shahu-docker-provision/misskey/.config/.env
@@ -44,8 +45,16 @@ sudo docker network create -d bridge --gateway=10.0.0.1 --subnet=10.0.0.0/27 mis
 ### Launch the service (Misskey)
 ```bash
 cd ./shahu-docker-provision/misskey/
-sudo docker compose up -d --build
+sudo docker compose --profile proxy up -d --build
 ```
+*If you are using Cloudflare Tunnel to publish your service, you need to run `sudo docker compose --profile proxy --profile tunnel up -d --build`  
+  
+> [!NOTE]
+> Although the `--profile` option is included only for the first boot, Caddy Proxy (as well as Cloudflare Tunnel) does not need to be recreated for updates or other tasks, so it can be run without the `--profile` option with `sudo docker compose up -d --build` without the `--profile` option.
+
+With these steps, the construction of the Misskey server is complete.  
+By default, inbound traffic is handled through the Caddy Proxy, so it is necessary to establish communication to the appropriate ports.  
+This is not described here, as it depends on the environment and cloud you are using.  
   
 ### Edit configs (Backup-Tool)
 In order to achieve a backup of Misskey, several steps need to be taken.  
