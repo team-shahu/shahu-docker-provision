@@ -41,6 +41,16 @@ This is not required (if you do not do this step, you will need to edit `compose
 ```bash
 sudo docker network create -d bridge --gateway=10.0.0.1 --subnet=10.0.0.0/27 misskey-postgres
 ```
+
+### Get Origin Certificate
+*If you are using Cloudfalre Tunnel, you may skip this step.  
+  
+You need to obtain an Origin Certificate from Cloudflare to make SSL (full-strict) from Cloudflare to your server as well.  
+Please refer to [here](https://qiita.com/github0013@github/items/362d01b0ffb1eb4d3efb#%E5%A4%9A%E5%88%86%E4%B8%80%E7%95%AA%E7%B0%A1%E5%8D%98%E3%81%AA%E3%82%84%E3%82%8A%E6%96%B9) for more details.  
+  
+Save the obtained certificate and private key in each file.  
+- `./shahu-docker-provision/misskey/.config/certificate.pem`
+- `./shahu-docker-provision/misskey/.config/key.pem`
   
 ### Launch the service (Misskey)
 ```bash

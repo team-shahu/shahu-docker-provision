@@ -8,6 +8,8 @@ services:
       - proxy
     volumes:
       - ./.config/Caddyfile:/etc/caddy/Caddyfile
+      - ./.config/certificate.pem:/etc/ssl/certs/certificate.pem
+      - ./.config/key.pem:/etc/ssl/private/key.pem
       - ./data/caddy/data:/data
       - ./data/caddy/config:/config
     networks:
