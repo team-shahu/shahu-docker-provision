@@ -25,7 +25,7 @@ jobs:
     - name: Update submodules
       run: |
         git submodule update --init --recursive
-        git submodule update --remote
+        git submodule foreach git pull main
     - name: Commit and push changes
       run: |
         git config --global user.name "github-actions[bot]"
