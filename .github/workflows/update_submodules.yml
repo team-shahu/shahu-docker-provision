@@ -25,7 +25,8 @@ jobs:
     - name: Update submodules
       run: |
         git config --global protocol.file.allow always
-        git submodule update --init --recursive
+        git submodule init
+        git submodule update
         git submodule foreach git pull main
     - name: Commit and push changes
       run: |
