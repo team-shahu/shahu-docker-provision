@@ -24,6 +24,7 @@ jobs:
         fetch-depth: 0
     - name: Update submodules
       run: |
+        git config --global protocol.file.allow always
         git submodule update --init --recursive
         git submodule foreach git pull main
     - name: Commit and push changes
