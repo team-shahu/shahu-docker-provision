@@ -18,26 +18,23 @@ jobs:
       TZ: "Asia/Tokyo"
     if: contains(github.event.head_commit.message, '[ci skip]') == false
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout the repository
+      uses: actions/checkout@v3
       with:
-        submodules: recursive
+        fetch-depth: 0
     - name: Update submodules
-      id: update
-      run: git submodule foreach git pull origin main
-    - name: Run git status
-      id: status
-      run: echo "::set-output name=status::$(git status -s)"
-    - name: Add and commit files
       run: |
-        git add .
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Update submodules at $(date "+DATE: %Y-%m-%d TIME: %H:%M:%S")"
-      if: ${{ steps.status.outputs.status }}
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: main
-      if: ${{ steps.status.outputs.status && github.event_name == 'push' }}
+        git submodule update --init --recursive
+        git submodule update --remote
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git commit -am "Automatically update submodules"
+        if git diff --cached --quiet; then
+          echo "No changes detected."
+        else
+          git commit -m 'update: sorted domains.txt'
+          git push origin main
+        fi
       
