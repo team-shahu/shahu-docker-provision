@@ -32,11 +32,6 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git commit -am "Automatically update submodules"
-        if git diff --cached --quiet; then
-          echo "No changes detected."
-        else
-          git commit -m 'update: sorted domains.txt'
-          git push origin main
-        fi
+        git commit -a -m "Automatically update submodules"
+        git push origin main
       
