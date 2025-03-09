@@ -8,14 +8,6 @@ This guide will walk you through the process of setting up Misskey and Backup-To
 curl https://get.docker.com/ | sudo sh
 ```
    
-### Get a token to use ghcr.io
-Since shahu.ski manages Docker images in private ghcr.io, we need to get the necessary token to pull the image.  
-Obtain a personal access token (classic) from GitHub and login. For detailed instructions, see [here](https://docs.github.com/ja/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#personal-access-token-classic-%E3%81%AE%E4%BD%9C%E6%88%90)  
-```bash
-export CR_PAT={{ YOUR_TOKEN }}
-echo $CR_PAT | docker login ghcr.io -u {{ YOUR_USERNAME }} --password-stdin
-```
-  
 ### Clone this repository
 Clone the shahu-docker-provision repository from GitLab to server:  
 ```bash
