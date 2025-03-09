@@ -32,6 +32,9 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git commit -a -m "Automatically update submodules"
-        git push origin main
-      
+        if ! git status --porcelain --untracked-files=no | grep -q "."; then
+          echo "No submodule changes to commit"
+        else
+          git commit -a -m "Automatically update submodules"
+          git push origin main
+        fi
