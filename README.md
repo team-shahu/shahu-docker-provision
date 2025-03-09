@@ -9,9 +9,9 @@ curl https://get.docker.com/ | sudo sh
 ```
    
 ### Clone this repository
-Clone the shahu-docker-provision repository from GitLab to server:  
+Clone the shahu-docker-provision repository from GitHub to server:  
 ```bash
-https://github.com/team-shahu/shahu-docker-provision.git
+git clone --recursive https://github.com/team-shahu/shahu-docker-provision.git
 ```
    
 ### Edit configs (Misskey)
