@@ -67,8 +67,8 @@ See [here](https://github.com/team-shahu/misskey-backup/blob/ebad83a7252859e0347
 cd ./shahu-docker-provision/misskey-backup/
 sudo docker compose up -d --build
 ```
-
-
+  
+  
 ## Optional Steps
 This step does not necessarily need to be done in order to publish the service.  
 ### Install Tailscale
@@ -96,3 +96,14 @@ sudo ufw reload
 sudo service ssh restart
 ```
 *`100.64.0.0/10` is the range of IP addresses distributed by Tailnet's DHCP.
+  
+  
+## How to update
+Please do this if you need to update your containers due to Misskey updates, infrastructure configuration changes, etc.  
+```bash
+git pull && sudo docker compose up -d
+```
+*If you are using Cloudflare Tunnel, you need to run `sudo docker compose --profile tunnel up -d`  
+  
+If you need to update Cloudfalre Tunnel or Caddy Proxy, please add the `--profiles` option as needed.  
+For updates that do not involve restarting Caddy Proxy, the maintenance page will be automatically displayed while the Misskey application container is down.  
