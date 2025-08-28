@@ -85,10 +85,10 @@ services:
     networks:
       - misskey-postgres
     env_file:
-      - ./config/.env
+      - .config/.env
     volumes:
       - mi-backups:/app/backups
-      - ./config:/app/config:ro
+      - .config:/app/config:ro
     logging:
       options:
         max-size: 5m
