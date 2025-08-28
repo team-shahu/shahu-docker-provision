@@ -83,7 +83,8 @@ services:
     environment:
       TZ: Asia/Tokyo
     networks:
-      - misskey-postgres
+      misskey-postgres:
+        ipv4_address: 10.0.0.3
     env_file:
       - .config/.env
     volumes:
@@ -92,16 +93,11 @@ services:
     logging:
       options:
         max-size: 5m
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: '1g'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 1m
       timeout: 10s
-      retries: 3
+      retries: 5
       start_period: 30s
 
 networks:
