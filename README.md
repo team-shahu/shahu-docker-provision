@@ -24,6 +24,7 @@ vim ./shahu-docker-provision/misskey/.config/.env
   
 The same values entered in the `.env` above should be entered in the corresponding sections of the `default.yml`.  
 ```
+cp ./shahu-docker-provision/misskey/.config/default.yml.sample ./shahu-docker-provision/misskey/.config/default.yml
 vim ./shahu-docker-provision/misskey/.config/default.yml
 ```
   
