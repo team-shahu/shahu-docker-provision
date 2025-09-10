@@ -16,7 +16,7 @@ services:
       - internal_network
 
   app:
-    image: ghcr.io/team-shahu/misskey:latest
+    image: ghcr.io/lqvp/misskey-tempura:latest
     restart: always
     environment:
       COREPACK_INTEGRITY_KEYS: 0
