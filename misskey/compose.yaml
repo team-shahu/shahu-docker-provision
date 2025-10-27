@@ -102,7 +102,29 @@ services:
       - .config/.env
     networks:
       - internal_network
-
+  backup:
+    image: ghcr.io/team-shahu/misskey-backup:latest
+    container_name: misskey-backup-go
+    restart: always
+    environment:
+      TZ: Asia/Tokyo
+    networks:
+      misskey-postgres:
+        ipv4_address: 10.0.0.3
+    env_file:
+      - .config/.env
+    volumes:
+      - mi-backups:/app/backups
+      - .config:/app/config:ro
+    logging:
+      options:
+        max-size: 5m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 networks:
   internal_network:
