@@ -51,10 +51,9 @@ cd ./shahu-docker-provision/misskey/
 sudo docker compose --profile proxy up -d --build
 ```
 *If you are using Cloudflare Tunnel to publish your service, you need to run `sudo docker compose --profile proxy --profile tunnel up -d --build`  
-*If you want to use WARP proxy for enhanced connectivity, you need to run `sudo docker compose --profile proxy --profile warp-proxy up -d --build`  
 
 > [!NOTE]
-> Although the `--profile` option is included only for the first boot, Caddy Proxy (as well as Cloudflare Tunnel and WARP proxy) does not need to be recreated for updates or other tasks, so it can be run without the `--profile` option with `sudo docker compose up -d --build` without the `--profile` option.
+> Although the `--profile` option is included only for the first boot, Caddy Proxy (as well as Cloudflare Tunnel) does not need to be recreated for updates or other tasks, so it can be run without the `--profile` option with `sudo docker compose up -d --build` without the `--profile` option.
 
 With these steps, the construction of the Misskey server is complete.  
 By default, inbound traffic is handled through the Caddy Proxy, so it is necessary to establish communication to the appropriate ports.  
@@ -73,20 +72,6 @@ sudo docker compose up -d --build
   
 ## Optional Steps
 This step does not necessarily need to be done in order to publish the service.  
-### WARP Proxy
-WARP proxy provides enhanced connectivity and security by routing traffic through Cloudflare's global network. This can improve performance and provide additional security features.
-
-The WARP proxy service is configured in the compose.yaml file and runs on port 1081. It includes:
-- Automatic restart on failure
-- Health checks to ensure service availability
-- Configuration stored in `./data/warp-proxy`
-- Timezone set to Asia/Tokyo
-- Verbose logging enabled
-
-To use WARP proxy, include the `--profile warp-proxy` option when launching the service:
-```bash
-sudo docker compose --profile proxy --profile warp-proxy up -d --build
-```
 
 ### Install Tailscale
 By deploying Tailscale, remote access VPNs can be easily established. Separate ACLs can be written, allowing zero-trust-based management.  
@@ -121,7 +106,6 @@ Please do this if you need to update your containers due to Misskey updates, inf
 git pull && sudo docker compose up -d
 ```
 *If you are using Cloudflare Tunnel, you need to run `sudo docker compose --profile tunnel up -d`  
-*If you are using WARP proxy, you need to run `sudo docker compose --profile warp-proxy up -d`  
 
-If you need to update Cloudflare Tunnel, Caddy Proxy, or WARP proxy, please add the `--profiles` option as needed.  
+If you need to update Cloudflare Tunnel or Caddy Proxy, please add the `--profiles` option as needed.  
 For updates that do not involve restarting Caddy Proxy, the maintenance page will be automatically displayed while the Misskey application container is down.

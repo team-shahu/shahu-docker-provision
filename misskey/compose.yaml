@@ -11,8 +11,6 @@ services:
       - VERBOSE=true
     ports:
       - "1081:1081"
-    profiles:
-      - warp-proxy
     networks:
       - internal_network
     dns:
