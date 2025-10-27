@@ -291,10 +291,10 @@ id: 'aidx'
 #outgoingAddress: 127.0.0.1
 
 # IP address family used for outgoing request (ipv4, ipv6 or dual)
-#outgoingAddressFamily: ipv4
+#outgoingAddressFamily: dual
 
 # Proxy for HTTP/HTTPS
-#proxy: http://127.0.0.1:3128
+proxy: http://warp-proxy:1081
 
 proxyBypassHosts:
   - api.deepl.com

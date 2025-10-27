@@ -1,4 +1,29 @@
 services:
+  warp-proxy:
+    image: ghcr.io/kingcc/warproxy:latest
+    restart: always
+    volumes:
+      - ./data/warp-proxy:/config
+    environment:
+      - WARP_PLUS=false
+      - HTTP_PORT=1081
+      - TZ=Asia/Tokyo
+      - VERBOSE=true
+    ports:
+      - "1081:1081"
+    profiles:
+      - warp-proxy
+    networks:
+      - internal_network
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 1081 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
   proxy:
     image: caddy:2
     ports:
@@ -27,6 +52,8 @@ services:
       db:
         condition: service_healthy
       keydb:
+        condition: service_healthy
+      warp-proxy:
         condition: service_healthy
     ports:
       - "3000:3000"
@@ -76,29 +103,6 @@ services:
     networks:
       - internal_network
 
-  backup:
-    image: ghcr.io/team-shahu/misskey-backup:latest
-    container_name: misskey-backup-go
-    restart: always
-    environment:
-      TZ: Asia/Tokyo
-    networks:
-      misskey-postgres:
-        ipv4_address: 10.0.0.3
-    env_file:
-      - .config/.env
-    volumes:
-      - mi-backups:/app/backups
-      - .config:/app/config:ro
-    logging:
-      options:
-        max-size: 5m
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 1m
-      timeout: 10s
-      retries: 5
-      start_period: 30s
 
 networks:
   internal_network:
