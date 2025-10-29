@@ -1,8 +1,7 @@
 *.env
 
-/misskey/.config/default.yml
-/misskey/.config/certificate.pem
-/misskey/.config/key.pem
+.config/default.yml
+.config/certificate.pem
+.config/key.pem
 
-/misskey/data/
-/misskey-backup/config/*.tar
+data/
