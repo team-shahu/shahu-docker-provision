@@ -1,0 +1,4 @@
+REPO="https://github.com/team-shahu/shahu-docker-provision"
+REGISTRY="ghcr.io"
+IMAGE="lqvp/misskey-tempura"
+IMG_TAG=latest

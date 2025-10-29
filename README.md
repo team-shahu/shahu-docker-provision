@@ -80,6 +80,22 @@ sudo tailscale up --ssh --auth-key={{ YOUR_AUTH_KEY }}
 > [!NOTE]
 > If multiple people are required to administer the service, or if another service also belongs to the same tailnet, it is preferable to configure the appropriate ACL settings, since all devices will be able to communicate with each other.  
   
+### Install compose-cd
+[compose-cd](https://github.com/sksat/compose-cd) is a tool that automatically updates Docker Compose services when changes are pushed to the repository.  
+You can install it with the following steps:  
+```bash
+wget https://github.com/sksat/compose-cd/releases/latest/download/compose-cd.tar.zst
+tar xvf compose-cd.tar.zst
+./compose-cd install \
+    --search-root "<path to this repository>" \
+    --git-pull-user <user for `git pull`> \
+    --discord-webhook "<discord webhook url>"
+```
+
+*Replace `<path to this repository>` with the path to this repository.  
+*Replace `<user for \`git pull\``>` with the username that will execute `git pull` commands.  
+*Replace `<discord webhook url>` with your actual webhook URL if you want to receive notifications about deployments.  
+  
 ### Access Restriction Settings
 Since ssh connections are made via tailscale and web access is made via Cloudflare Tunnel, all inbound communication should be discarded and only specific communication should be allowed.  
 Here is an example of a setup using ufw, but it is not limited to this.  
