@@ -18,14 +18,15 @@ git clone --recursive https://github.com/team-shahu/shahu-docker-provision.git
 Enter any value for `POSTGRES_PASSWORD` and `POSTGRES_USER` (must be the same value as in `default.yml` described below).  
 Also, if you are using Cloudflare Tunnel, for `TUNNEL_TOKEN` enter [instructions here](https://qiita.com/mai_llj/items/5485d2a90fe28b76b5aa#cloudflare-argo-tunnel%E3%81%AE%E8%A8%AD%E5%AE%9A) Enter the Cloudflare Tunnel token.  
 ```
-cp ./shahu-docker-provision/misskey/.config/.env.sample ./shahu-docker-provision/misskey/.config/.env
-vim ./shahu-docker-provision/misskey/.config/.env
+cd ./shahu-docker-provision
+cp ./.config/.env.sample ./.config/.env
+vim ./.config/.env
 ```
   
 The same values entered in the `.env` above should be entered in the corresponding sections of the `default.yml`.  
 ```
-cp ./shahu-docker-provision/misskey/.config/default.yml.sample ./shahu-docker-provision/misskey/.config/default.yml
-vim ./shahu-docker-provision/misskey/.config/default.yml
+cp ./.config/default.yml.sample ./.config/default.yml
+vim ./.config/default.yml
 ```
   
 ### Create docker network
@@ -42,12 +43,11 @@ You need to obtain an Origin Certificate from Cloudflare to make SSL (full-stric
 Please refer to [here](https://qiita.com/github0013@github/items/362d01b0ffb1eb4d3efb#%E5%A4%9A%E5%88%86%E4%B8%80%E7%95%AA%E7%B0%A1%E5%8D%98%E3%81%AA%E3%82%84%E3%82%8A%E6%96%B9) for more details.  
   
 Save the obtained certificate and private key in each file.  
-- `./shahu-docker-provision/misskey/.config/certificate.pem`
-- `./shahu-docker-provision/misskey/.config/key.pem`
+- `./.config/certificate.pem`
+- `./.config/key.pem`
   
 ### Launch the service (Misskey)
 ```bash
-cd ./shahu-docker-provision/misskey/
 sudo docker compose --profile proxy up -d --build
 ```
 *If you are using Cloudflare Tunnel to publish your service, you need to run `sudo docker compose --profile proxy --profile tunnel up -d --build`  
@@ -59,15 +59,9 @@ With these steps, the construction of the Misskey server is complete.
 By default, inbound traffic is handled through the Caddy Proxy, so it is necessary to establish communication to the appropriate ports.  
 This is not described here, as it depends on the environment and cloud you are using.  
   
-### Edit configs (Backup-Tool)
-In order to achieve a backup of Misskey, several steps need to be taken.  
-See [here](https://github.com/team-shahu/misskey-backup/blob/ebad83a7252859e034723e83c67b4a2b96ca760e/README.md) for detailed instructions.  
-  
 ### Launch the service (Backup-Tool)
-```bash
-cd ./shahu-docker-provision/misskey-backup/
-sudo docker compose up -d --build
-```
+The backup service is integrated into the main `compose.yaml`. After configuring the `.env` file as described above, you can launch it along with the Misskey service.  
+See [here](https://github.com/team-shahu/misskey-backup) for detailed configuration instructions.
   
   
 ## Optional Steps
@@ -103,7 +97,7 @@ sudo service ssh restart
 ## How to update
 Please do this if you need to update your containers due to Misskey updates, infrastructure configuration changes, etc.  
 ```bash
-git pull && sudo docker compose up -d
+git pull && sudo docker image pull ghcr.io/lqvp/misskey-tempura:latest && sudo docker compose up -d
 ```
 *If you are using Cloudflare Tunnel, you need to run `sudo docker compose --profile tunnel up -d`  
 
