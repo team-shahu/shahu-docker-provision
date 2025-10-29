@@ -1,0 +1,179 @@
+name: Update Misskey Tempura Image
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get current image info
+        id: current
+        run: |
+          # compose.yamlから現在のイメージ情報を取得
+          CURRENT_LINE=$(grep "ghcr.io/lqvp/misskey-tempura" compose.yaml)
+          echo "current_line=$CURRENT_LINE" >> $GITHUB_OUTPUT
+          echo "Current line from compose.yaml: $CURRENT_LINE"
+          
+          # 現在のバージョンとダイジェストを抽出
+          CURRENT_VERSION=$(echo "$CURRENT_LINE" | sed -n 's/.*misskey-tempura:\([^@]*\)@.*/\1/p')
+          CURRENT_FULL_DIGEST=$(echo "$CURRENT_LINE" | sed -n 's/.*@\(sha256:[a-f0-9]*\).*/\1/p')
+          CURRENT_DIGEST=$(echo "$CURRENT_FULL_DIGEST" | sed 's/sha256://')
+          
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "current_digest=$CURRENT_DIGEST" >> $GITHUB_OUTPUT
+          echo "current_full_digest=$CURRENT_FULL_DIGEST" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+          echo "Current digest: $CURRENT_DIGEST"
+          echo "Current full digest: $CURRENT_FULL_DIGEST"
+
+      - name: Get latest image info
+        id: latest
+        run: |
+          # レジストリから最新のイメージ情報を取得
+          # まず、利用可能な全てのタグを取得
+          TOKEN=$(curl -s "https://ghcr.io/token?scope=repository:lqvp/misskey-tempura:pull" | jq -r .token)
+          TAGS=$(curl -s -H "Authorization: Bearer $TOKEN" "https://ghcr.io/v2/lqvp/misskey-tempura/tags/list" | jq -r '.tags[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+          
+          echo "Latest tag: $TAGS"
+          LATEST_VERSION="$TAGS"
+          
+          # 最新バージョンの完全なダイジェストを取得
+          FULL_DIGEST=$(docker buildx imagetools inspect "ghcr.io/lqvp/misskey-tempura:$LATEST_VERSION" --format "{{json .Manifest}}" | jq -r '.digest')
+          LATEST_DIGEST=$(echo "$FULL_DIGEST" | sed 's/sha256://')
+          
+          echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "latest_digest=$LATEST_DIGEST" >> $GITHUB_OUTPUT
+          echo "latest_full_digest=$FULL_DIGEST" >> $GITHUB_OUTPUT
+          echo "Latest version: $LATEST_VERSION"
+          echo "Latest digest: $LATEST_DIGEST"
+          echo "Latest full digest: $FULL_DIGEST"
+
+      - name: Check for updates
+        id: check
+        run: |
+          CURRENT_VERSION="${{ steps.current.outputs.current_version }}"
+          CURRENT_DIGEST="${{ steps.current.outputs.current_digest }}"
+          LATEST_VERSION="${{ steps.latest.outputs.latest_version }}"
+          LATEST_DIGEST="${{ steps.latest.outputs.latest_digest }}"
+          
+          echo "=== Comparing versions and digests ==="
+          echo "  Current version: $CURRENT_VERSION"
+          echo "  Latest version:  $LATEST_VERSION"
+          echo "  Current digest:  $CURRENT_DIGEST"
+          echo "  Latest digest:   $LATEST_DIGEST"
+          echo ""
+          
+          UPDATE_NEEDED=false
+          
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+            echo "✓ Version mismatch detected: $CURRENT_VERSION -> $LATEST_VERSION"
+            UPDATE_NEEDED=true
+          else
+            echo "✓ Version is up to date: $CURRENT_VERSION"
+          fi
+          
+          if [ "$CURRENT_DIGEST" != "$LATEST_DIGEST" ]; then
+            echo "✓ Digest mismatch detected"
+            echo "  Current: $CURRENT_DIGEST"
+            echo "  Latest:  $LATEST_DIGEST"
+            UPDATE_NEEDED=true
+          else
+            echo "✓ Digest is up to date"
+          fi
+          
+          echo ""
+          if [ "$UPDATE_NEEDED" = true ]; then
+            echo "update_available=true" >> $GITHUB_OUTPUT
+            echo "🔄 Update available!"
+          else
+            echo "update_available=false" >> $GITHUB_OUTPUT
+            echo "✅ Already up to date"
+          fi
+
+      - name: Update compose.yaml
+        if: steps.check.outputs.update_available == 'true'
+        run: |
+          LATEST_VERSION="${{ steps.latest.outputs.latest_version }}"
+          FULL_DIGEST="${{ steps.latest.outputs.latest_full_digest }}"
+          
+          # 新しいイメージ行を作成
+          NEW_LINE="    image: ghcr.io/lqvp/misskey-tempura:${LATEST_VERSION}@${FULL_DIGEST}"
+          
+          # compose.yamlを更新
+          sed -i "s|.*ghcr.io/lqvp/misskey-tempura.*|${NEW_LINE}|" compose.yaml
+          
+          echo "Updated compose.yaml"
+          echo "New image reference: ${NEW_LINE}"
+          
+          # 変更内容を確認
+          echo "--- Git diff ---"
+          git diff compose.yaml
+
+      - name: Create Pull Request
+        if: steps.check.outputs.update_available == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update misskey-tempura to ${{ steps.latest.outputs.latest_version }}"
+          title: "chore: Update misskey-tempura to ${{ steps.latest.outputs.latest_version }}"
+          body: |
+            ## 🔄 Misskey Tempura イメージの更新
+            
+            このPRは自動的に生成されました。
+            
+            ### 📋 変更内容
+            | 項目 | 古いの | 新しいの |
+            |------|------|--------|
+            | バージョン | `${{ steps.current.outputs.current_version }}` | `${{ steps.latest.outputs.latest_version }}` |
+            | ダイジェスト | `${{ steps.current.outputs.current_digest }}` | `${{ steps.latest.outputs.latest_digest }}` |
+            
+            ### 🔍 詳細
+            
+            **以前のイメージ:**
+            ```
+            ghcr.io/lqvp/misskey-tempura:${{ steps.current.outputs.current_version }}@${{ steps.current.outputs.current_full_digest }}
+            ```
+            
+            **新しいイメージ:**
+            ```
+            ghcr.io/lqvp/misskey-tempura:${{ steps.latest.outputs.latest_version }}@${{ steps.latest.outputs.latest_full_digest }}
+            ```
+            
+            ### ✅ 確認事項
+            - [ ] 変更内容を確認しました
+            - [ ] テスト環境で動作確認を行いました（必要に応じて）
+            - [ ] 本番環境への適用準備ができています
+            
+            ### 📚 関連リンク
+            - [misskey-tempura リポジトリ](https://github.com/lqvp/misskey-tempura)
+            - [イメージレジストリ](https://github.com/lqvp/misskey-tempura/pkgs/container/misskey-tempura)
+            
+            ---
+            
+            🤖 自動生成されたPR | 📅 ${{ github.run_id }}
+          branch: update-misskey-tempura-${{ steps.latest.outputs.latest_version }}
+          delete-branch: true
+          labels: |
+            dependencies
+            automated pr
+
