@@ -5,6 +5,11 @@ shahu.ski {
 	file_server
 
 	reverse_proxy app:3000 {
+		header_up X-Real-IP {header.CF-Connecting-IP}
+		header_up X-Forwarded-For {header.CF-Connecting-IP}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+		
 		# health check
 		health_uri /api/server-info
 		health_interval 10s
