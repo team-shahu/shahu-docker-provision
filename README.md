@@ -16,6 +16,8 @@ git clone --recursive https://github.com/team-shahu/shahu-docker-provision.git
    
 ### Edit configs (Misskey)
 Enter any value for `POSTGRES_PASSWORD` and `POSTGRES_USER` (must be the same value as in `default.yml` described below).  
+Additionally, for encrypting database backup files, enter a 32-byte or longer string for `BACKUP_ENCRYPTION_KEY`. (This can be generated using `openssl rand -base64 32`).  
+  
 Also, if you are using Cloudflare Tunnel, for `TUNNEL_TOKEN` enter [instructions here](https://qiita.com/mai_llj/items/5485d2a90fe28b76b5aa#cloudflare-argo-tunnel%E3%81%AE%E8%A8%AD%E5%AE%9A) Enter the Cloudflare Tunnel token.  
 ```
 cd ./shahu-docker-provision
