@@ -39,7 +39,7 @@ services:
       - internal_network
 
   app:
-    image: ghcr.io/lqvp/misskey-tempura:1.9.9@sha256:a575eb9e8f0da74304f93cae844eb090129e6a6e90c80db2fb96ec44bf9b65b1
+    image: ghcr.io/lqvp/misskey-tempura:1.9.9@sha256:5a22308cc3431d789e8961a632fcd009b7b1eb45ff5f1fca8c2a51308c41c581
     restart: always
     environment:
       COREPACK_INTEGRITY_KEYS: 0
@@ -84,7 +84,7 @@ services:
     env_file:
       - .config/.env
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/pg-18:/var/lib/postgresql
     healthcheck:
       test: "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
       interval: 5s
