@@ -74,7 +74,7 @@ services:
 
   db:
     restart: always
-    image: groonga/pgroonga:latest-debian-16
+    image: groonga/pgroonga:latest-debian-18
     ports:
       - '5430:5432'
     networks:
