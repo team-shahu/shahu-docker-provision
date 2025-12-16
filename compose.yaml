@@ -39,7 +39,7 @@ services:
       - internal_network
 
   app:
-    image: ghcr.io/lqvp/misskey-tempura:1.9.8@sha256:cfac8c9d454776b89ffe9c36464c990db80dfefe82b40d4e6ef8c373475dbaf6
+    image: ghcr.io/lqvp/misskey-tempura:1.9.9@sha256:a575eb9e8f0da74304f93cae844eb090129e6a6e90c80db2fb96ec44bf9b65b1
     restart: always
     environment:
       COREPACK_INTEGRITY_KEYS: 0
@@ -74,7 +74,7 @@ services:
 
   db:
     restart: always
-    image: groonga/pgroonga:latest-debian-16
+    image: groonga/pgroonga:latest-debian-18
     ports:
       - '5430:5432'
     networks:
