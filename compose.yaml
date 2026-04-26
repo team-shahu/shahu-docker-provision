@@ -1,27 +1,4 @@
 services:
-  warp-proxy:
-    image: ghcr.io/kingcc/warproxy:latest
-    restart: always
-    volumes:
-      - ./data/warp-proxy:/config
-    environment:
-      - WARP_PLUS=false
-      - HTTP_PORT=1081
-      - TZ=Asia/Tokyo
-      - VERBOSE=true
-    ports:
-      - "1081:1081"
-    networks:
-      - internal_network
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 1081 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
   proxy:
     image: caddy:2
     ports:
@@ -50,8 +27,6 @@ services:
       db:
         condition: service_healthy
       keydb:
-        condition: service_healthy
-      warp-proxy:
         condition: service_healthy
     ports:
       - "3000:3000"

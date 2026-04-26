@@ -294,7 +294,7 @@ id: 'aidx'
 #outgoingAddressFamily: dual
 
 # Proxy for HTTP/HTTPS
-proxy: http://warp-proxy:1081
+# proxy: http://127.0.0.1:1081
 
 proxyBypassHosts:
   - api.deepl.com
@@ -349,4 +349,3 @@ signToActivityPubGet: true
 #     # Disable query truncation. If set to true, the full text of the query will be output to the log.
 #     # default: false
 #     disableQueryTruncation: false
-
