@@ -83,6 +83,7 @@ services:
     environment:
       TZ: Asia/Tokyo
     networks:
+      internal_network:
       misskey-postgres:
         ipv4_address: 10.0.0.3
     env_file:
