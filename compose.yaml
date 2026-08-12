@@ -77,7 +77,7 @@ services:
       - internal_network
 
   backup:
-    image: ghcr.io/team-shahu/misskey-backup:2026.07.01@sha256:aaf9124cef785a77d98ec62fdf828f63fca40cbc931517a4d61cb07182c6438a
+    image: ghcr.io/team-shahu/misskey-backup:2026.07.01@
     container_name: misskey-backup-go
     restart: always
     environment:
