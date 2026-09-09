@@ -1,9 +1,5 @@
-*.env
-
-.config/default.yml
-.config/certificate.pem
-.config/key.pem
-
 data/
-
+doco-cd/sops_age_key.txt
+doco-cd/apprise_notify_urls.txt
+ansible/inventory.yml
 .DS_Store

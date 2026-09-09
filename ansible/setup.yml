@@ -1,0 +1,47 @@
+- name: Provision Misskey host
+  hosts: new
+  become: true
+  vars_files:
+    - vars/main.yml
+  pre_tasks:
+    - name: Load secrets
+      community.sops.load_vars:
+        file: vars/secrets.sops.yml
+      tags: [always]
+
+    - name: Check required secrets
+      ansible.builtin.assert:
+        that:
+          - tailscale_auth_key is defined and tailscale_auth_key != 'CHANGE_ME'
+          - admin_user_password_hash is match('^\$6\$')
+        fail_msg: "set tailscale_auth_key and admin_user_password_hash in vars/secrets.sops.yml"
+        quiet: true
+      tags: [always]
+  tasks:
+    - name: Base system
+      ansible.builtin.import_tasks: tasks/base.yml
+      tags: [base]
+
+    - name: Docker
+      ansible.builtin.import_tasks: tasks/docker.yml
+      tags: [docker]
+
+    - name: Users
+      ansible.builtin.import_tasks: tasks/users.yml
+      tags: [users]
+
+    - name: doco-cd
+      ansible.builtin.import_tasks: tasks/doco_cd.yml
+      tags: [doco-cd]
+
+    - name: Tailscale
+      ansible.builtin.import_tasks: tasks/tailscale.yml
+      tags: [tailscale]
+
+    - name: ufw
+      ansible.builtin.import_tasks: tasks/ufw.yml
+      tags: [ufw]
+
+    - name: Start doco-cd
+      ansible.builtin.import_tasks: tasks/start.yml
+      tags: [never, start]

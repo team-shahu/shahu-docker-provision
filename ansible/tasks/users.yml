@@ -1,0 +1,16 @@
+- name: Create admin user
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups:
+      - sudo
+      - docker
+    append: true
+    shell: /bin/bash
+    password: "{{ admin_user_password_hash }}"
+  no_log: true
+
+- name: Add SSH keys for admin user
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ item }}"
+  loop: "{{ admin_user_ssh_keys }}"

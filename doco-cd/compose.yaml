@@ -1,0 +1,49 @@
+services:
+  doco-cd:
+    image: ghcr.io/kimdre/doco-cd:0.117.0
+    container_name: doco-cd
+    restart: unless-stopped
+    depends_on:
+      apprise:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Tokyo
+      POLL_CONFIG_FILE: /etc/doco-cd/poll.yaml
+      SOPS_AGE_KEY_FILE: /run/secrets/sops_age_key
+      APPRISE_API_URL: http://apprise:8000/notify
+      APPRISE_NOTIFY_URLS_FILE: /run/secrets/apprise_notify_urls
+      APPRISE_NOTIFY_LEVEL: success
+    secrets:
+      - sops_age_key
+      - apprise_notify_urls
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./poll.yaml:/etc/doco-cd/poll.yaml:ro
+      - ./data:/data
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "/doco-cd", "healthcheck"]
+      start_period: 15s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  apprise:
+    image: caronc/apprise:1.5.4
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Tokyo
+      APPRISE_WORKER_COUNT: 1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/status >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+secrets:
+  sops_age_key:
+    file: ./sops_age_key.txt
+  apprise_notify_urls:
+    file: ./apprise_notify_urls.txt

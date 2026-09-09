@@ -10,8 +10,8 @@ services:
       - ./.config/Caddyfile:/etc/caddy/Caddyfile
       - ./.config/certificate.pem:/etc/ssl/certs/certificate.pem
       - ./.config/key.pem:/etc/ssl/private/key.pem
-      - ./data/caddy/data:/data
-      - ./data/caddy/config:/config
+      - caddy-data:/data
+      - caddy-config:/config
     networks:
       - internal_network
 
@@ -28,8 +28,6 @@ services:
         condition: service_healthy
       keydb:
         condition: service_healthy
-    ports:
-      - "3000:3000"
     networks:
       - internal_network
     volumes:
@@ -39,9 +37,11 @@ services:
     restart: always
     image: eqalpha/keydb:alpine
     networks:
-      - internal_network
+      internal_network:
+      misskey-postgres:
+        ipv4_address: 10.0.0.4
     volumes:
-      - ./data/keydb:/data
+      - keydb:/data
     healthcheck:
       test: "redis-cli ping"
       interval: 5s
@@ -51,7 +51,7 @@ services:
     restart: always
     image: groonga/pgroonga:latest-debian-18
     ports:
-      - '5430:5432'
+      - "127.0.0.1:5432:5432"
     networks:
       internal_network:
       misskey-postgres:
@@ -59,7 +59,7 @@ services:
     env_file:
       - .config/.env
     volumes:
-      - ./data/pg-18:/var/lib/postgresql
+      - pg-18:/var/lib/postgresql
     healthcheck:
       test: "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
       interval: 5s
@@ -103,6 +103,10 @@ services:
 
 networks:
   internal_network:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: fd7a:2c19:4b3e::/64
   misskey-postgres:
     external: true
     driver: bridge
@@ -112,3 +116,7 @@ networks:
 
 volumes:
   mi-backups:
+  pg-18:
+  keydb:
+  caddy-data:
+  caddy-config:

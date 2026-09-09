@@ -1,0 +1,27 @@
+- name: Add Tailscale apt repository
+  ansible.builtin.deb822_repository:
+    name: tailscale
+    types: deb
+    uris: https://pkgs.tailscale.com/stable/ubuntu
+    suites: "{{ ansible_distribution_release }}"
+    components: main
+    signed_by: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_distribution_release }}.noarmor.gpg"
+    state: present
+
+- name: Install Tailscale
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+    update_cache: true
+
+- name: Check Tailscale state
+  ansible.builtin.command: tailscale status --json
+  register: tailscale_status
+  changed_when: false
+  failed_when: false
+
+- name: Connect to tailnet
+  ansible.builtin.command: tailscale up --ssh --auth-key={{ tailscale_auth_key }}
+  when: tailscale_status.rc != 0 or (tailscale_status.stdout | from_json).BackendState != 'Running'
+  changed_when: true
+  no_log: true

@@ -1,0 +1,29 @@
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ server_hostname }}"
+
+- name: Keep hostname across cloud-init runs
+  ansible.builtin.copy:
+    content: "preserve_hostname: true\n"
+    dest: /etc/cloud/cloud.cfg.d/99-preserve-hostname.cfg
+    mode: "0644"
+
+- name: Register hostname in /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s'
+    line: "127.0.1.1 {{ server_hostname }}"
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - rsync
+      - python3-requests
+    state: present
+    update_cache: true

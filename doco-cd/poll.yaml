@@ -1,0 +1,3 @@
+- url: https://github.com/team-shahu/shahu-docker-provision.git
+  reference: refs/heads/main
+  interval: 60

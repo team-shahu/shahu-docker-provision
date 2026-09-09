@@ -1,0 +1,55 @@
+- name: Install deb822 support
+  ansible.builtin.apt:
+    name: python3-debian
+    state: present
+    update_cache: true
+
+- name: Add Docker apt repository
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/ubuntu
+    suites: "{{ ansible_distribution_release }}"
+    components: stable
+    architectures: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64'}.get(ansible_architecture, ansible_architecture) }}"
+    signed_by: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Install Docker packages
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Enable Docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true
+
+- name: Create misskey-postgres network
+  community.docker.docker_network:
+    name: misskey-postgres
+    driver: bridge
+    ipam_config:
+      - subnet: 10.0.0.0/27
+        gateway: 10.0.0.1
+
+- name: Create data volumes
+  community.docker.docker_volume:
+    name: "{{ compose_project }}_{{ item }}"
+    labels:
+      com.docker.compose.project: "{{ compose_project }}"
+      com.docker.compose.volume: "{{ item }}"
+  loop: "{{ data_volumes }}"

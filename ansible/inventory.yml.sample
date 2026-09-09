@@ -1,0 +1,13 @@
+all:
+  vars:
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: ~/.ssh/misskey_blue.key
+  hosts:
+    new:
+      ansible_host: 203.0.113.10
+      migration_host: 203.0.113.10
+    old:
+      ansible_host: 198.51.100.10
+      migration_source_ip: 198.51.100.10
+      old_checkout_dir: /home/ubuntu/shahu-docker-provision
+      old_compose_project: shahu-docker-provision

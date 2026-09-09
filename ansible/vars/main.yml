@@ -1,0 +1,27 @@
+compose_project: shahu-docker-provision
+doco_cd_dir: /home/ubuntu/doco-cd
+data_volumes:
+  - pg-18
+  - keydb
+  - caddy-data
+  - caddy-config
+  - mi-backups
+sync_targets:
+  - { src: "{{ old_checkout_dir }}/data/pg-18", volume: pg-18 }
+  - { src: "{{ old_checkout_dir }}/data/keydb", volume: keydb }
+  - { src: "{{ old_checkout_dir }}/data/caddy/data", volume: caddy-data }
+  - { src: "{{ old_checkout_dir }}/data/caddy/config", volume: caddy-config }
+  - { src: "/var/lib/docker/volumes/{{ old_compose_project | default(compose_project) }}_mi-backups/_data", volume: mi-backups }
+data_services:
+  - app
+  - backup
+  - db
+  - keydb
+server_hostname: shahu-ski
+timezone: Asia/Tokyo
+admin_user: mq1
+admin_user_ssh_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC2/bDxTrfkbpW4fKqqkaFg94NIGtt7MLUS8i5wqBAs/k1Hwhh7c85tpBhipKu95BUYSadqbqrvlIvinkHgeWnAcg6gvh/zzGUu4m95y91iyfHuTP02Y08+2I3dUYIvsgy76ZU4hdnhVEljcglyC4u89TG7MojON4OQB3KJ+cH6E4EUohnX0OgBMeZzy+9vRYM/8DRXj2RYabaT+qHtLOOJwebO9NukMz9M6FfvHg+UZxebFxq8wyOk+sokkr+Jqdzs8Wjb6bcIrhcI9dODPpQj3AFhkARDM+RQbQRO/WaYpzOGFZ4zLCdXqAKZjRSn1+t90D4ZkivLDM6d586kVRTN
+ufw_ssh_allow_from:
+  - 100.64.0.0/10
+final: false

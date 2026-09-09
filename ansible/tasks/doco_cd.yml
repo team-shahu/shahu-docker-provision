@@ -1,0 +1,38 @@
+- name: Create doco-cd directory
+  ansible.builtin.file:
+    path: "{{ doco_cd_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0750"
+
+- name: Create doco-cd data directory
+  ansible.builtin.file:
+    path: "{{ doco_cd_dir }}/data"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Copy doco-cd compose files
+  ansible.builtin.copy:
+    src: "../doco-cd/{{ item }}"
+    dest: "{{ doco_cd_dir }}/{{ item }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  loop:
+    - compose.yaml
+    - poll.yaml
+
+- name: Place doco-cd secret files
+  ansible.builtin.copy:
+    content: "{{ item.content }}"
+    dest: "{{ doco_cd_dir }}/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop:
+    - { name: sops_age_key.txt, content: "{{ doco_cd_age_key }}" }
+    - { name: apprise_notify_urls.txt, content: "{{ apprise_notify_urls }}" }
+  no_log: true
