@@ -57,7 +57,7 @@
         -e "ssh -i /root/.ssh/migrate_ed25519 -o StrictHostKeyChecking=accept-new"
         --rsync-path="sudo rsync"
         {{ item.src }}/
-        {{ ansible_user }}@{{ hostvars['new'].migration_host | default(hostvars['new'].ansible_host) }}:/var/lib/docker/volumes/{{ compose_project }}_{{ item.volume }}/_data/
+        {{ hostvars['new'].ansible_user | default(ansible_user) }}@{{ hostvars['new'].migration_host | default(hostvars['new'].ansible_host) }}:/var/lib/docker/volumes/{{ compose_project }}_{{ item.volume }}/_data/
       loop: "{{ sync_targets }}"
       register: rsync_result
       changed_when: true
