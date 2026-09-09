@@ -5,3 +5,5 @@
 .config/key.pem
 
 data/
+
+.DS_Store
