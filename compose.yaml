@@ -16,7 +16,7 @@ services:
       - internal_network
 
   app:
-    image: ghcr.io/lqvp/misskey-tempura:2.0.15@sha256:6d151f44eacc0214bf216b32740cffc48fa6b124ea630f0d7516dde990737ee7
+    image: ghcr.io/lqvp/misskey-tempura:2.0.17@sha256:7516c20cb7ceb97daf66e72054e801e378e924f0a8574f80bdd25ec35846bed2
     restart: always
     environment:
       COREPACK_INTEGRITY_KEYS: 0
