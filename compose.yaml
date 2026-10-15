@@ -1,3 +1,9 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
 services:
   proxy:
     image: caddy:2
@@ -14,42 +20,91 @@ services:
       - caddy-config:/config
     networks:
       - internal_network
+    logging: *logging
 
   app:
     image: ghcr.io/lqvp/misskey-tempura:2.0.19@sha256:588077edad89eb35a82934eafa0909a6a5106e1558d24c447ecbd92704eecb34
     restart: always
+    # pnpmプロセス常駐回避, イメージ更新時start script要確認
+    command: ["sh", "-c", "pnpm run migrate && cd packages/backend && pnpm compile-config && exec node ./built/entry.js"]
     environment:
       COREPACK_INTEGRITY_KEYS: 0
+      NODE_OPTIONS: --max-old-space-size=640
+    mem_limit: 800m
+    healthcheck:
+      test: ["CMD", "/bin/bash", "/misskey/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5m
+      start_interval: 5s
+    logging: *logging
     links:
       - db
-      - keydb
+      - redis
     depends_on:
       db:
         condition: service_healthy
-      keydb:
+      redis:
         condition: service_healthy
     networks:
       - internal_network
     volumes:
       - ./.config/default.yml:/misskey/.config/default.yml:ro
 
-  keydb:
+  redis:
     restart: always
-    image: eqalpha/keydb:alpine
+    image: redis:7-alpine
+    # 配送リトライ蓄積分を含む
+    mem_limit: 320m
+    logging: *logging
     networks:
       internal_network:
       misskey-postgres:
         ipv4_address: 10.0.0.4
     volumes:
-      - keydb:/data
+      - redis:/data
     healthcheck:
       test: "redis-cli ping"
-      interval: 5s
-      retries: 20
+      interval: 30s
+      retries: 3
+      start_period: 1m
+      start_interval: 2s
 
   db:
     restart: always
     image: groonga/pgroonga:latest-debian-18
+    # random_page_cost変更で検索プラン悪化
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - effective_cache_size=768MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - max_connections=50
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - jit=off
+      - -c
+      - max_parallel_workers_per_gather=0
+      - -c
+      - wal_compression=lz4
+      - -c
+      - max_wal_size=1GB
+      - -c
+      - checkpoint_timeout=15min
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+    shm_size: 128m
+    mem_limit: 600m
+    stop_grace_period: 1m
+    logging: *logging
     ports:
       - "127.0.0.1:5432:5432"
     networks:
@@ -62,8 +117,33 @@ services:
       - pg-18:/var/lib/postgresql
     healthcheck:
       test: "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
-      interval: 5s
-      retries: 20
+      interval: 30s
+      retries: 3
+      start_period: 5m
+      start_interval: 2s
+
+  # 全文検索の件数推定補正, pg_dump対象外
+  db-tune:
+    image: groonga/pgroonga:latest-debian-18
+    restart: always
+    init: true
+    mem_limit: 32m
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .config/.env
+    networks:
+      - internal_network
+    logging: *logging
+    # exitedはdoco-cdがデプロイ失敗扱い
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        PGPASSWORD="$$POSTGRES_PASSWORD" psql -h db -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -v ON_ERROR_STOP=1 -c
+        "ALTER OPERATOR &@~ (text, text) SET (RESTRICT = matchingsel, JOIN = matchingjoinsel)"
+        && exec sleep infinity
 
   tunnel:
     restart: always
@@ -75,6 +155,7 @@ services:
       - .config/.env
     networks:
       - internal_network
+    logging: *logging
 
   backup:
     image: ghcr.io/team-shahu/misskey-backup:2026.08.16@sha256:22ac42194456da0e63b96c44f15b134bf3a2368e610b73b3bcc885ffb50dd322
@@ -88,12 +169,15 @@ services:
         ipv4_address: 10.0.0.3
     env_file:
       - .config/.env
+    mem_limit: 224m
     volumes:
       - mi-backups:/app/backups
       - .config:/app/config:ro
     logging:
+      <<: *logging
       options:
         max-size: 5m
+        max-file: "3"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 1m
@@ -117,6 +201,6 @@ networks:
 volumes:
   mi-backups:
   pg-18:
-  keydb:
+  redis:
   caddy-data:
   caddy-config:

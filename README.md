@@ -5,14 +5,14 @@ shahu.skiをいい感じに構築/運用するためのレポジトリ
 ## 構成
 | パス | 内容 |
 |---|---|
-| `compose.yaml` | proxy(Caddy), app(misskey-tempura), keydb, db(PGroonga), tunnel(cloudflared), backup(misskey-backup) |
+| `compose.yaml` | proxy(Caddy), app(misskey-tempura), redis, db(PGroonga), tunnel(cloudflared), backup(misskey-backup) |
 | `.doco-cd.yaml` | doco-cdのデプロイ設定(プロジェクト名, profile) |
 | `doco-cd/` | doco-cd本体のcompose.yamlとポーリング設定(Ansibleがサーバの`/home/ubuntu/doco-cd`へ配置) |
 | `ansible/` | サーバ構築(`setup.yml`)とサーバ移行(`migrate.yml`) |
 | `.config/` | Misskey, Caddy, backupの設定。`.env`, `default.yml`, `key.pem`はsopsで暗号化済み |
 | `.github/workflows/` | イメージ更新のPRを自動作成 |
 
-データは名前付きvolumeに保存される(`shahu-docker-provision_` + `pg-18`, `keydb`, `caddy-data`, `caddy-config`, `mi-backups`)。
+データは名前付きvolumeに保存される(`shahu-docker-provision_` + `pg-18`, `redis`, `caddy-data`, `caddy-config`, `mi-backups`)。
 
 ## ローカルに必要なツール
 - sops, age

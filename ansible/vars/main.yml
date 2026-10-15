@@ -2,13 +2,13 @@ compose_project: shahu-docker-provision
 doco_cd_dir: /home/ubuntu/doco-cd
 data_volumes:
   - pg-18
-  - keydb
+  - redis
   - caddy-data
   - caddy-config
   - mi-backups
 sync_targets:
   - { src: "{{ old_checkout_dir }}/data/pg-18", volume: pg-18 }
-  - { src: "{{ old_checkout_dir }}/data/keydb", volume: keydb }
+  - { src: "{{ old_checkout_dir }}/data/keydb", volume: redis }
   - { src: "{{ old_checkout_dir }}/data/caddy/data", volume: caddy-data }
   - { src: "{{ old_checkout_dir }}/data/caddy/config", volume: caddy-config }
   - { src: "/var/lib/docker/volumes/{{ old_compose_project | default(compose_project) }}_mi-backups/_data", volume: mi-backups }
@@ -16,7 +16,7 @@ data_services:
   - app
   - backup
   - db
-  - keydb
+  - redis
 server_hostname: shahu-ski
 timezone: Asia/Tokyo
 admin_user: mq1

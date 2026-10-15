@@ -70,7 +70,7 @@
     - vars/main.yml
   tasks:
     - name: Start db and redis
-      ansible.builtin.command: docker start {{ compose_project }}-db-1 {{ compose_project }}-keydb-1
+      ansible.builtin.command: docker start {{ compose_project }}-db-1 {{ compose_project }}-redis-1
       when: final | bool
       changed_when: true
 
@@ -78,7 +78,7 @@
       ansible.builtin.command: docker inspect --format '{{ "{{" }}.State.Health.Status{{ "}}" }}' {{ item }}
       loop:
         - "{{ compose_project }}-db-1"
-        - "{{ compose_project }}-keydb-1"
+        - "{{ compose_project }}-redis-1"
       register: health
       until: health.stdout == 'healthy'
       retries: 30
