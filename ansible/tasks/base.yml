@@ -27,3 +27,11 @@
       - python3-requests
     state: present
     update_cache: true
+
+- name: Set vm.swappiness
+  ansible.posix.sysctl:
+    name: vm.swappiness
+    value: "10"
+    sysctl_file: /etc/sysctl.d/99-swappiness.conf
+    reload: true
+  tags: [sysctl]
