@@ -56,7 +56,7 @@ services:
     restart: always
     image: redis:7-alpine
     # 配送リトライ蓄積分を含む
-    mem_limit: 320m
+    mem_limit: 512m
     logging: *logging
     networks:
       internal_network:
@@ -103,8 +103,6 @@ services:
       - shared_preload_libraries=pg_stat_statements
     shm_size: 128m
     mem_limit: 600m
-    # shared_buffersのswap移動防止
-    memswap_limit: 600m
     stop_grace_period: 1m
     logging: *logging
     ports:
