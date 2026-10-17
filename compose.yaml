@@ -160,7 +160,7 @@ services:
     logging: *logging
 
   backup:
-    image: ghcr.io/team-shahu/misskey-backup:2026.08.16@sha256:22ac42194456da0e63b96c44f15b134bf3a2368e610b73b3bcc885ffb50dd322
+    image: ghcr.io/team-shahu/misskey-backup:2026.10.17@sha256:38f58e4f038005324ceb962dde632cf47758839c6e64f10446b8623d32e3eaf4
     container_name: misskey-backup-go
     restart: always
     environment:
