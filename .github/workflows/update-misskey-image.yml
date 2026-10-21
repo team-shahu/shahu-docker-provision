@@ -129,6 +129,18 @@ jobs:
           echo "--- Git diff ---"
           git diff compose.yaml
 
+      - name: Set up Go
+        if: steps.check.outputs.update_available == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: test/go.mod
+          cache-dependency-path: test/go.sum
+
+      - name: Test startup, account and note creation
+        if: steps.check.outputs.update_available == 'true'
+        working-directory: test
+        run: go test -v -count=1 -timeout 15m ./...
+
       - name: Create Pull Request
         if: steps.check.outputs.update_available == 'true'
         uses: peter-evans/create-pull-request@v6

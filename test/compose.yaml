@@ -1,0 +1,32 @@
+# compose.yamlのapp, db, redisを本番外部依存なしで起動
+services:
+  app:
+    extends:
+      file: ../compose.yaml
+      service: app
+    # マイグレーション失敗時の再起動ループ防止
+    restart: "no"
+    ports:
+      - "127.0.0.1::3000"
+    networks: !reset null
+    volumes: !override
+      - ./default.yml:/misskey/.config/default.yml:ro
+
+  redis:
+    extends:
+      file: ../compose.yaml
+      service: redis
+    restart: "no"
+    networks: !reset null
+    volumes: !reset []
+
+  db:
+    extends:
+      file: ../compose.yaml
+      service: db
+    restart: "no"
+    ports: !reset []
+    networks: !reset null
+    env_file: !override
+      - .env
+    volumes: !reset []

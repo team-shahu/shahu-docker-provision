@@ -11,6 +11,7 @@ shahu.skiをいい感じに構築/運用するためのレポジトリ
 | `ansible/` | サーバ構築(`setup.yml`)とサーバ移行(`migrate.yml`) |
 | `.config/` | Misskey, Caddy, backupの設定。`.env`, `default.yml`, `key.pem`はsopsで暗号化済み |
 | `.github/workflows/` | イメージ更新のPRを自動作成 |
+| `test/` | app, db, redisの起動, アカウント作成, ノート作成のテスト(`go test ./...`)。テスト用composeと平文設定を含む |
 
 データは名前付きvolumeに保存される(`shahu-docker-provision_` + `pg-18`, `redis`, `caddy-data`, `caddy-config`, `mi-backups`)。
 
