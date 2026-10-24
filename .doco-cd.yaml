@@ -4,4 +4,4 @@ compose_files:
   - compose.yaml
 profiles:
   - proxy
-timeout: 600
+timeout: 2100

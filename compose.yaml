@@ -36,7 +36,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5m
+      start_period: 30m
       start_interval: 5s
     logging: *logging
     links:
