@@ -23,7 +23,7 @@ services:
     logging: *logging
 
   app:
-    image: ghcr.io/lqvp/misskey-tempura:2.0.20@sha256:348d55a0ce658bc8036161a4f337ac9704b9b5e7e870969638bafe55ea64ae8d
+    image: ghcr.io/lqvp/misskey-tempura:2.0.22@sha256:721209636d1dc43c0afb61d13b01cc2cea70176df62755f7f1d5e4a39b95fe8c
     restart: always
     # pnpmプロセス常駐回避, イメージ更新時start script要確認
     command: ["sh", "-c", "pnpm run migrate && cd packages/backend && pnpm compile-config && exec node ./built/entry.js"]
